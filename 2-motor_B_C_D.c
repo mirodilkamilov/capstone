@@ -13,7 +13,7 @@
 #define IN3_PIN 5
 #define IN4_PIN 6
 
-#define MAX_SPEED 1000
+#define MAX_SPEED 100
 #define MIN_SPEED 0
 
 void initDCMotor();
@@ -36,59 +36,24 @@ int main(void)
 
 	while (cntr > 0)
 	{
-		goForward();
-		delay(4000);
+		// goForward();
+		// delay(5000);
+
+		// smoothRight();
+		// delay(600);
+
+		// smoothLeft();
+		// delay(800);
 
 		stopDCMotor();
-		delay(2000);
+		delay(500);
 
-		// slow();  //slowly go forward
-		// delay(1000);
+		// smoothRight();
+		// delay(1100);
 
 		// stopDCMotor();
-		// delay(1000);
+		// delay(500);
 
-		//-----------------------------------------//
-
-		// Mission 3: A: Smooth turn forward
-		/*
-		smoothRight();
-		delay(500);
-
-		goForward();
-		delay(500);
-
-		smoothLeft();
-		delay(500);
-
-		goForward();
-		delay(500);
-
-		stopDCMotor();
-		delay(1000);
-		*/
-
-		//-----------------------------------------//
-
-		// Mission 3: B: Smooth turn BACKWARD
-		/*
-		smoothBackRight();
-		delay(1000);
-
-		goBackward();
-		delay(500);
-
-		smoothBackLeft();
-		delay(1000);
-
-		goBackward();
-		delay(500);
-
-		stopDCMotor();
-		delay(1000);
-		*/
-
-		//----------------------------------------//
 		cntr--;
 		break;
 	}
@@ -119,10 +84,10 @@ void slow()
 
 void goForward()
 {
-	softPwmWrite(IN1_PIN, 75);
-	softPwmWrite(IN2_PIN, 0);
+	softPwmWrite(IN1_PIN, 77);
+	softPwmWrite(IN2_PIN, MIN_SPEED);
 	softPwmWrite(IN3_PIN, 100);
-	softPwmWrite(IN4_PIN, 0);
+	softPwmWrite(IN4_PIN, MIN_SPEED);
 }
 
 void goBackward()
