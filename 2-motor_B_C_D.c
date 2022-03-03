@@ -50,12 +50,20 @@ int main(void)
 		// delay(800);
 
 		dist = getDistance();
+		// break;
 
 		if (dist <= 25)
 		{
 			stopDCMotor();
-			printf("STOP: distance is less than 15cm\n");
+			printf("STOP: distance is less than 25cm\n");
 			delay(500);
+
+			smoothRight();
+			delay(620);
+
+			stopDCMotor();
+			delay(500);
+
 			break;
 		}
 		else
