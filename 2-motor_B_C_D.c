@@ -13,8 +13,14 @@
 #define IN3_PIN 5
 #define IN4_PIN 6
 
+#define TRIG_PIN 28
+#define ECHO_PIN 29
+
 #define MAX_SPEED 100
 #define MIN_SPEED 0
+
+void initUltrasonic();
+int getDistance();
 
 void initDCMotor();
 void goForward();
@@ -25,40 +31,70 @@ void stopDCMotor();
 void slow();
 void smoothBackLeft();
 
-int cntr = 1;
+int dist;
 
 int main(void)
 {
 	if (wiringPiSetup() == -1)
 		return 0;
 
+	initUltrasonic();
 	initDCMotor();
 
-	while (cntr > 0)
+	while (1)
 	{
-		// goForward();
-		// delay(5000);
-
 		// smoothRight();
 		// delay(600);
 
 		// smoothLeft();
 		// delay(800);
 
-		stopDCMotor();
-		delay(500);
+		dist = getDistance();
 
-		// smoothRight();
-		// delay(1100);
-
-		// stopDCMotor();
-		// delay(500);
-
-		cntr--;
-		break;
+		if (dist <= 25)
+		{
+			stopDCMotor();
+			printf("STOP: distance is less than 15cm\n");
+			delay(500);
+			break;
+		}
+		else
+		{
+			goForward();
+		}
 	}
 
 	return 0;
+}
+
+void initUltrasonic()
+{
+	pinMode(TRIG_PIN, OUTPUT);
+	pinMode(ECHO_PIN, INPUT);
+}
+
+int getDistance()
+{
+	int start_time = 0, end_time = 0;
+	float distance = 0;
+
+	digitalWrite(TRIG_PIN, LOW);
+	delay(500);
+	digitalWrite(TRIG_PIN, HIGH);
+	delayMicroseconds(10);
+	digitalWrite(TRIG_PIN, LOW);
+
+	while (digitalRead(ECHO_PIN) == 0)
+		;
+	start_time = micros();
+
+	while (digitalRead(ECHO_PIN) == 1)
+		;
+	end_time = micros();
+
+	distance = (end_time - start_time) / 29. / 2.;
+
+	return (int)distance;
 }
 
 void initDCMotor()
