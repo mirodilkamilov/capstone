@@ -48,7 +48,7 @@ int main(void)
 
     while (isFinished == 0)
     {
-        break;
+        // break;
         dist = getDistance();
 
         LValue = digitalRead(LEFT_IR_PIN);
@@ -83,7 +83,6 @@ int main(void)
             switch (numOfCycles)
             {
             case 1:
-            case 5:
                 goForward();
                 delay(400);
 
@@ -119,20 +118,18 @@ int main(void)
                 delay(500);
                 break;
 
-            default:
-                smoothLeft();
-                delay(580);
-
-                stopDCMotor();
-                delay(500);
-
+            case 5:
                 goForward();
-                delay(1000);
+                delay(2000);
 
                 stopDCMotor();
                 delay(500);
-
                 isFinished = 1;
+                break;
+
+            default:
+                stopDCMotor();
+                delay(5000);
                 break;
             }
         }
