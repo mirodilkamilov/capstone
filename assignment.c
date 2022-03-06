@@ -84,13 +84,13 @@ int main(void)
             {
             case 1:
                 goForward();
-                delay(400);
+                delay(500);
 
                 stopDCMotor();
                 delay(500);
 
                 smoothLeft();
-                delay(580);
+                delay(600);
 
                 stopDCMotor();
                 delay(500);
@@ -100,19 +100,19 @@ int main(void)
             case 3:
             case 4:
                 smoothLeft();
-                delay(600);
+                delay(625);
 
                 stopDCMotor();
                 delay(500);
 
                 goForward();
-                delay(2000);
+                delay(1950);
 
                 stopDCMotor();
                 delay(500);
 
                 smoothLeft();
-                delay(600);
+                delay(650);
 
                 stopDCMotor();
                 delay(500);
@@ -120,7 +120,7 @@ int main(void)
 
             case 5:
                 goForward();
-                delay(2000);
+                delay(2050);
 
                 stopDCMotor();
                 delay(500);
