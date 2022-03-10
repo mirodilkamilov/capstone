@@ -18,7 +18,8 @@
 // IR sensor pins
 #define LEFT_IR_PIN 26
 #define RIGHT_IR_PIN 27
-
+#define LEFT_TRACER_PIN 10
+#define RIGHT_TRACER_PIN 11
 void initUltrasonic();
 int getDistance();
 
@@ -42,85 +43,79 @@ int main(void)
 
     initUltrasonic();
     initDCMotor();
+    initLineTacer();
 
-    int numOfBoxes = 0;
+    int leftTracer;
+    int rightTracer;
+
+    int numOfBoxes = 1;
     int isFinished = 0;
+    int isStopped = 0;
 
     while (isFinished == 0)
     {
         // break;
-        dist = getDistance();
+        leftTracer = digitalRead(LEFT_TRACER_PIN);
+        rightTracer = digitalRead(RIGHT_TRACER_PIN);
 
-        if (dist <= 28)
+        while (leftTracer == 1 && rightTracer == 1)
         {
-            // If distance less than 28cm
-            numOfBoxes++;
+            leftTracer = digitalRead(LEFT_TRACER_PIN);
+            rightTracer = digitalRead(RIGHT_TRACER_PIN);
 
-            stopDCMotor();
-            delay(500);
-
-            avoidObstacleFromRight();
-
-            // Further move
-            switch (numOfBoxes)
+            dist = getDistance();
+            if (dist <= 20)
             {
-            // Case: Box A
-            case 1:
+
+                switch (numOfBoxes)
+                {
+                case 2:
+                    avoidObstacleFromRight();
+                    break;
+
+                default:
+                    stopDCMotor();
+                    isStopped = 1;
+                    break;
+                }
+            }
+            else
+            {
                 goForward();
-                delay(500);
-
-                stopDCMotor();
-                delay(500);
-
-                smoothLeft();
-                delay(650);
-
-                stopDCMotor();
-                delay(500);
-                break;
-
-            // Cases: Box B, C, D
-            case 2:
-            case 3:
-            case 4:
-                smoothLeft();
-                delay(625);
-
-                stopDCMotor();
-                delay(500);
-
-                goForward();
-                delay(1950);
-
-                stopDCMotor();
-                delay(500);
-
-                smoothLeft();
-                delay(650);
-
-                stopDCMotor();
-                delay(500);
-                break;
-
-            // Case: Box A (finish)
-            case 5:
-                goForward();
-                delay(2050);
-
-                stopDCMotor();
-                delay(500);
-                isFinished = 1;
-                break;
-
-            default:
-                stopDCMotor();
-                delay(5000);
-                break;
+                if (isStopped == 1)
+                {
+                    numOfBoxes++;
+                }
             }
         }
-        else
+        stopDCMotor();
+        delay(100);
+        leftTracer = digitalRead(LEFT_TRACER_PIN);
+
+        while (leftTracer == 0)
         {
-            goForward();
+            smoothRight();
+            leftTracer = digitalRead(LEFT_TRACER_PIN);
+            numOfBoxes = 1;
+        }
+        stopDCMotor();
+        delay(100);
+        rightTracer = digitalRead(RIGHT_TRACER_PIN);
+        while (rightTracer == 0)
+        {
+            smoothLeft();
+            rightTracer = digitalRead(RIGHT_TRACER_PIN);
+            numOfBoxes = 1;
+        }
+        stopDCMotor();
+        delay(100);
+        leftTracer = digitalRead(LEFT_TRACER_PIN);
+        rightTracer = digitalRead(RIGHT_TRACER_PIN);
+        if (leftTracer == 0 && rightTracer == 0)
+        {
+            stopDCMotor();
+            delay(100);
+            isFinished = 1;
         }
     }
 
@@ -166,14 +161,17 @@ void initUltrasonic()
     pinMode(TRIG_PIN, OUTPUT);
     pinMode(ECHO_PIN, INPUT);
 }
-
+void initLineTacer()
+{
+    pinMode(LEFT_TRACER_PIN, INPUT);
+    pinMode(RIGHT_TRACER_PIN, INPUT);
+}
 int getDistance()
 {
     int start_time = 0, end_time = 0;
     float distance = 0;
 
     digitalWrite(TRIG_PIN, LOW);
-    delay(500);
     digitalWrite(TRIG_PIN, HIGH);
     delayMicroseconds(10);
     digitalWrite(TRIG_PIN, LOW);

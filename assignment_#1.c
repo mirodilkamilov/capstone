@@ -2,19 +2,22 @@
 #include <wiringPi.h>
 #include <softPwm.h>
 
+// DC Motor pins
 #define IN1_PIN 1
 #define IN2_PIN 4
 #define IN3_PIN 5
 #define IN4_PIN 6
 
+#define MAX_SPEED 100
+#define MIN_SPEED 0
+
+// Ultrasonic pins
 #define TRIG_PIN 28
 #define ECHO_PIN 29
 
+// IR sensor pins
 #define LEFT_IR_PIN 26
 #define RIGHT_IR_PIN 27
-
-#define MAX_SPEED 100
-#define MIN_SPEED 0
 
 void initUltrasonic();
 int getDistance();
@@ -26,6 +29,7 @@ void goForward();
 void smoothLeft();
 void smoothRight();
 void stopDCMotor();
+void avoidObstacleFromRight();
 
 int dist;
 
@@ -34,54 +38,32 @@ int main(void)
     if (wiringPiSetup() == -1)
         return 0;
 
-    int LValue, RValue;
     initIR();
 
     initUltrasonic();
     initDCMotor();
 
-    LValue = digitalRead(LEFT_IR_PIN);
-    RValue = digitalRead(RIGHT_IR_PIN);
-
-    int numOfCycles = 0;
+    int numOfBoxes = 0;
     int isFinished = 0;
 
     while (isFinished == 0)
     {
-        // break;
         dist = getDistance();
-
-        LValue = digitalRead(LEFT_IR_PIN);
-        RValue = digitalRead(RIGHT_IR_PIN);
 
         if (dist <= 28)
         {
-            numOfCycles++;
+            // If distance less than 28cm
+            numOfBoxes++;
 
             stopDCMotor();
             delay(500);
 
-            while (LValue == 1)
-            {
-                smoothRight();
-                LValue = digitalRead(LEFT_IR_PIN);
-            }
+            avoidObstacleFromRight();
 
-            stopDCMotor();
-            delay(500);
-            LValue = digitalRead(LEFT_IR_PIN);
-
-            while (LValue == 0)
+            // Further move
+            switch (numOfBoxes)
             {
-                goForward();
-                LValue = digitalRead(LEFT_IR_PIN);
-            }
-            stopDCMotor();
-            delay(500);
-
-            // break;
-            switch (numOfCycles)
-            {
+            // Case: Box A
             case 1:
                 goForward();
                 delay(500);
@@ -90,12 +72,13 @@ int main(void)
                 delay(500);
 
                 smoothLeft();
-                delay(600);
+                delay(650);
 
                 stopDCMotor();
                 delay(500);
                 break;
 
+            // Cases: Box B, C, D
             case 2:
             case 3:
             case 4:
@@ -118,6 +101,7 @@ int main(void)
                 delay(500);
                 break;
 
+            // Case: Box A (finish)
             case 5:
                 goForward();
                 delay(2050);
@@ -140,6 +124,40 @@ int main(void)
     }
 
     return 0;
+}
+
+/**
+ * Avoid obstacle from right:
+ * 1. Turns left (until it is paralel to obstacle)
+ * 2. Goes forward (until passes by obstacle)
+ */
+void avoidObstacleFromRight()
+{
+    int LValue, RValue;
+
+    LValue = digitalRead(LEFT_IR_PIN);
+    RValue = digitalRead(RIGHT_IR_PIN);
+
+    // Turn right until IR sensor detect the obstacle from Left
+    while (LValue == 1)
+    {
+        smoothRight();
+        LValue = digitalRead(LEFT_IR_PIN);
+    }
+
+    stopDCMotor();
+    delay(500);
+    LValue = digitalRead(LEFT_IR_PIN);
+
+    // Go forward until IR sensor stops detecting the obstacle from Left
+    while (LValue == 0)
+    {
+        goForward();
+        LValue = digitalRead(LEFT_IR_PIN);
+    }
+
+    stopDCMotor();
+    delay(500);
 }
 
 void initUltrasonic()
@@ -213,7 +231,6 @@ void stopDCMotor()
     softPwmWrite(IN2_PIN, MIN_SPEED);
     softPwmWrite(IN3_PIN, MIN_SPEED);
     softPwmWrite(IN4_PIN, MIN_SPEED);
-    // printf("Stop\n");
 }
 
 void goForward()
