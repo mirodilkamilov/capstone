@@ -49,14 +49,16 @@ int main(void)
     int rightTracer;
 
     int numOfBoxes = 1;
-    int isFinished = 0;
     int isStopped = 0;
+    int isFinished = 0;
 
     while (isFinished == 0)
     {
         // break;
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
+
+        // int isNoLine = leftTracer == 1 && rightTracer == 1;
 
         while (leftTracer == 1 && rightTracer == 1)
         {
@@ -66,7 +68,6 @@ int main(void)
             dist = getDistance();
             if (dist <= 20)
             {
-
                 switch (numOfBoxes)
                 {
                 case 2:
@@ -75,6 +76,7 @@ int main(void)
 
                 default:
                     stopDCMotor();
+                    printf("Stopped\n");
                     isStopped = 1;
                     break;
                 }
@@ -82,6 +84,7 @@ int main(void)
             else
             {
                 goForward();
+                printf("Forward\n");
                 if (isStopped == 1)
                 {
                     numOfBoxes++;
@@ -90,33 +93,38 @@ int main(void)
         }
         stopDCMotor();
         delay(100);
-        leftTracer = digitalRead(LEFT_TRACER_PIN);
 
+        leftTracer = digitalRead(LEFT_TRACER_PIN);
         while (leftTracer == 0)
         {
             smoothRight();
+            printf("Right\n");
             leftTracer = digitalRead(LEFT_TRACER_PIN);
-            numOfBoxes = 1;
         }
         stopDCMotor();
         delay(100);
+
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
         while (rightTracer == 0)
         {
             smoothLeft();
+            printf("Left\n");
             rightTracer = digitalRead(RIGHT_TRACER_PIN);
-            numOfBoxes = 1;
         }
         stopDCMotor();
         delay(100);
+
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
-        if (leftTracer == 0 && rightTracer == 0)
-        {
-            stopDCMotor();
-            delay(100);
-            isFinished = 1;
-        }
+
+        int isBothLine = leftTracer == 0 && rightTracer == 0;
+
+        // if (isBothLine)
+        // {
+        //     stopDCMotor();
+        //     delay(100);
+        //     isFinished = 1;
+        // }
     }
 
     return 0;
