@@ -48,25 +48,41 @@ int main(void)
     int leftTracer;
     int rightTracer;
 
+    int isStopped = 0;
     int numOfBoxes = 0;
     int isFinished = 0;
 
     while (isFinished == 0)
     {
-        break;
+        //break;
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
 
         while (leftTracer == 1 && rightTracer == 1)
         {
+            dist = getDistance();
+
+            if (dist <= 20)
+            {
+                isStopped = 1;
+                stopDCMotor();
+                delay(100);
+            }
+            else
+            {
+                goForward();
+                if (isStopped == 1)
+                {
+                    numOfBoxes++;
+                }
+            }
             leftTracer = digitalRead(LEFT_TRACER_PIN);
             rightTracer = digitalRead(RIGHT_TRACER_PIN);
-            goForward();
         }
         stopDCMotor();
         delay(100);
-        leftTracer = digitalRead(LEFT_TRACER_PIN);
 
+        leftTracer = digitalRead(LEFT_TRACER_PIN);
         while (leftTracer == 0)
         {
             smoothRight();
@@ -74,6 +90,7 @@ int main(void)
         }
         stopDCMotor();
         delay(100);
+
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
         while (rightTracer == 0)
         {
@@ -82,14 +99,15 @@ int main(void)
         }
         stopDCMotor();
         delay(100);
+
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
-        if (leftTracer == 0 && rightTracer == 0)
-        {
-            stopDCMotor();
-            delay(100);
-            isFinished = 1;
-        }
+        // if (leftTracer == 0 && rightTracer == 0)
+        // {
+        //     stopDCMotor();
+        //     delay(100);
+        //     isFinished = 1;
+        // }
     }
 
     return 0;
@@ -145,9 +163,9 @@ int getDistance()
     float distance = 0;
 
     digitalWrite(TRIG_PIN, LOW);
-    delay(500);
+    // delay(500);
     digitalWrite(TRIG_PIN, HIGH);
-    delayMicroseconds(10);
+    delayMicroseconds(5);
     digitalWrite(TRIG_PIN, LOW);
 
     while (digitalRead(ECHO_PIN) == 0)
