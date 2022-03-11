@@ -54,7 +54,7 @@ int main(void)
 
     while (isFinished == 0)
     {
-        //break;
+        // break;
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
 
@@ -227,8 +227,8 @@ void stopDCMotor()
 
 void goForward()
 {
-    softPwmWrite(IN1_PIN, 55);
+    softPwmWrite(IN1_PIN, 50);
     softPwmWrite(IN2_PIN, MIN_SPEED);
-    softPwmWrite(IN3_PIN, 70);
+    softPwmWrite(IN3_PIN, 65);
     softPwmWrite(IN4_PIN, MIN_SPEED);
 }
