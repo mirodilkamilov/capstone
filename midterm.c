@@ -28,12 +28,14 @@ void initLineTacer();
 
 void initDCMotor();
 void goForward();
+void goBackward();
 void smoothLeft();
 void smoothRight();
 void stopDCMotor();
 void avoidObstacleFromRight();
 
 int dist;
+int LValue, RValue;
 
 int main(void)
 {
@@ -50,6 +52,7 @@ int main(void)
     int rightTracer;
 
     int isStopped = 0;
+    int isDoneWithBox2 = 0;
     int numOfBoxes = 0;
     int isFinished = 0;
 
@@ -68,18 +71,57 @@ int main(void)
 
             if (dist <= 20 && dist != 0)
             {
-                isStopped = 1;
-                printf("If stopped\n");
-                stopDCMotor();
-                delay(1000);
+                switch (numOfBoxes)
+                {
+                case 2:
+                    stopDCMotor();
+                    delay(100);
+
+                    LValue = digitalRead(LEFT_IR_PIN);
+                    RValue = digitalRead(RIGHT_IR_PIN);
+
+                    // Turn right until IR sensor detect the obstacle from Left
+                    while (LValue == 1)
+                    {
+                        smoothRight();
+                        LValue = digitalRead(LEFT_IR_PIN);
+                    }
+                    stopDCMotor();
+                    delay(100);
+
+                    smoothLeft();
+                    delay(400);
+
+                    stopDCMotor();
+                    delay(100);
+
+                    goBackward();
+                    delay(400);
+
+                    stopDCMotor();
+                    delay(100);
+
+                    numOfBoxes = 3;
+                    break;
+
+                case 3:
+                    stopDCMotor();
+                    delay(1000);
+                    isFinished = 1;
+                    break;
+
+                default:
+                    numOfBoxes = 1;
+                    isStopped = 1;
+                    printf("If stopped\n");
+                    stopDCMotor();
+                    delay(1000);
+                    break;
+                }
             }
             else
             {
                 goForward();
-                if (isStopped == 1)
-                {
-                    numOfBoxes++;
-                }
             }
 
             leftTracer = digitalRead(LEFT_TRACER_PIN);
@@ -95,6 +137,11 @@ int main(void)
         while (leftTracer == 0)
         {
             smoothRight();
+            // TODO: uncomment if you start from the begining
+            // if (isStopped == 1 && numOfBoxes == 1)
+            // {
+            //     numOfBoxes = 2;
+            // }
             leftTracer = digitalRead(LEFT_TRACER_PIN);
         }
         stopDCMotor();
@@ -106,6 +153,28 @@ int main(void)
         while (rightTracer == 0)
         {
             smoothLeft();
+            if (isStopped == 1 && numOfBoxes == 1)
+            {
+                numOfBoxes = 2;
+            }
+            rightTracer = digitalRead(RIGHT_TRACER_PIN);
+        }
+        stopDCMotor();
+        delay(100);
+
+        leftTracer = digitalRead(LEFT_TRACER_PIN);
+        rightTracer = digitalRead(RIGHT_TRACER_PIN);
+        while ((leftTracer == 0 && rightTracer == 0) && numOfBoxes == 3)
+        {
+            printf("\n\nLast one\nLeft: %d Right: %d\n");
+
+            goBackward();
+            delay(1000);
+
+            smoothLeft();
+            delay(300);
+
+            leftTracer = digitalRead(LEFT_TRACER_PIN);
             rightTracer = digitalRead(RIGHT_TRACER_PIN);
         }
         stopDCMotor();
@@ -248,4 +317,12 @@ void goForward()
     softPwmWrite(IN2_PIN, MIN_SPEED);
     softPwmWrite(IN3_PIN, 60);
     softPwmWrite(IN4_PIN, MIN_SPEED);
+}
+
+void goBackward()
+{
+    softPwmWrite(IN1_PIN, MIN_SPEED);
+    softPwmWrite(IN2_PIN, MAX_SPEED);
+    softPwmWrite(IN3_PIN, MIN_SPEED);
+    softPwmWrite(IN4_PIN, MAX_SPEED);
 }
