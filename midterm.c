@@ -59,15 +59,19 @@ int main(void)
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
 
+        printf("leftTracer: %d rightTracer: %d\n", leftTracer, rightTracer);
+
         while (leftTracer == 1 && rightTracer == 1)
         {
             dist = getDistance();
+            printf("\ndist: %d\n", dist);
 
-            if (dist <= 20)
+            if (dist <= 20 && dist != 0)
             {
                 isStopped = 1;
+                printf("If stopped\n");
                 stopDCMotor();
-                delay(100);
+                delay(1000);
             }
             else
             {
@@ -77,13 +81,17 @@ int main(void)
                     numOfBoxes++;
                 }
             }
+
             leftTracer = digitalRead(LEFT_TRACER_PIN);
             rightTracer = digitalRead(RIGHT_TRACER_PIN);
         }
+        printf("stopDC\n");
         stopDCMotor();
         delay(100);
 
         leftTracer = digitalRead(LEFT_TRACER_PIN);
+        printf("leftTracer: %d\n", leftTracer);
+
         while (leftTracer == 0)
         {
             smoothRight();
@@ -93,6 +101,8 @@ int main(void)
         delay(100);
 
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
+        printf("rightTracer: %d\n", rightTracer);
+
         while (rightTracer == 0)
         {
             smoothLeft();
@@ -103,12 +113,8 @@ int main(void)
 
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
-        // if (leftTracer == 0 && rightTracer == 0)
-        // {
-        //     stopDCMotor();
-        //     delay(100);
-        //     isFinished = 1;
-        // }
+
+        printf("\nLoop finshed\n");
     }
 
     return 0;
@@ -153,28 +159,39 @@ void initUltrasonic()
     pinMode(TRIG_PIN, OUTPUT);
     pinMode(ECHO_PIN, INPUT);
 }
+
 void initLineTacer()
 {
     pinMode(LEFT_TRACER_PIN, INPUT);
     pinMode(RIGHT_TRACER_PIN, INPUT);
 }
+
 int getDistance()
 {
+    int loop_start = 0;
     int start_time = 0, end_time = 0;
     float distance = 0;
 
     digitalWrite(TRIG_PIN, LOW);
-    // delay(500);
+
+    delayMicroseconds(2);
+    // delay(10);
+
     digitalWrite(TRIG_PIN, HIGH);
-    delayMicroseconds(5);
+    delayMicroseconds(10);
     digitalWrite(TRIG_PIN, LOW);
 
+    loop_start = micros();
     while (digitalRead(ECHO_PIN) == 0)
-        ;
+    {
+        if (micros() - loop_start >= 1000)
+            break;
+    }
     start_time = micros();
 
     while (digitalRead(ECHO_PIN) == 1)
         ;
+
     end_time = micros();
 
     distance = (end_time - start_time) / 29. / 2.;
@@ -223,13 +240,12 @@ void stopDCMotor()
     softPwmWrite(IN2_PIN, MIN_SPEED);
     softPwmWrite(IN3_PIN, MIN_SPEED);
     softPwmWrite(IN4_PIN, MIN_SPEED);
-    // printf("Stop\n");
 }
 
 void goForward()
 {
-    softPwmWrite(IN1_PIN, 50);
+    softPwmWrite(IN1_PIN, 45);
     softPwmWrite(IN2_PIN, MIN_SPEED);
-    softPwmWrite(IN3_PIN, 65);
+    softPwmWrite(IN3_PIN, 60);
     softPwmWrite(IN4_PIN, MIN_SPEED);
 }
