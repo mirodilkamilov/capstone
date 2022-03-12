@@ -68,9 +68,11 @@ int main(void)
         {
             dist = getDistance();
             printf("\ndist: %d\n", dist);
+            printf("\nnumOfBoxes: %d\n", numOfBoxes);
 
             if (dist <= 20 && dist != 0)
             {
+                printf("numOfBoxes: %d\n", numOfBoxes);
                 switch (numOfBoxes)
                 {
                 case 2:
@@ -78,7 +80,6 @@ int main(void)
                     delay(100);
 
                     LValue = digitalRead(LEFT_IR_PIN);
-                    RValue = digitalRead(RIGHT_IR_PIN);
 
                     // Turn right until IR sensor detect the obstacle from Left
                     while (LValue == 1)
@@ -96,15 +97,40 @@ int main(void)
                     delay(100);
 
                     goBackward();
-                    delay(400);
+                    delay(300);
 
                     stopDCMotor();
                     delay(100);
 
+                    rightTracer = digitalRead(RIGHT_TRACER_PIN);
+                    while (rightTracer == 1)
+                    {
+                        goForward();
+                        rightTracer = digitalRead(RIGHT_TRACER_PIN);
+                    }
+                    stopDCMotor();
+                    delay(100);
+
+                    while (rightTracer == 0)
+                    {
+                        smoothLeft();
+                        rightTracer = digitalRead(RIGHT_TRACER_PIN);
+                    }
+                    stopDCMotor();
+                    delay(100);
+
+                    goForward();
+                    delay(300);
+
+                    smoothLeft();
+                    delay(300);
+
                     numOfBoxes = 3;
+                    printf("In case 2\n");
                     break;
 
                 case 3:
+                    printf("In case 3\n");
                     stopDCMotor();
                     delay(1000);
                     isFinished = 1;
@@ -126,8 +152,12 @@ int main(void)
 
             leftTracer = digitalRead(LEFT_TRACER_PIN);
             rightTracer = digitalRead(RIGHT_TRACER_PIN);
+            if (isFinished == 1)
+            {
+                leftTracer = NULL;
+                rightTracer = NULL;
+            }
         }
-        printf("stopDC\n");
         stopDCMotor();
         delay(100);
 
@@ -157,24 +187,6 @@ int main(void)
             {
                 numOfBoxes = 2;
             }
-            rightTracer = digitalRead(RIGHT_TRACER_PIN);
-        }
-        stopDCMotor();
-        delay(100);
-
-        leftTracer = digitalRead(LEFT_TRACER_PIN);
-        rightTracer = digitalRead(RIGHT_TRACER_PIN);
-        while ((leftTracer == 0 && rightTracer == 0) && numOfBoxes == 3)
-        {
-            printf("\n\nLast one\nLeft: %d Right: %d\n");
-
-            goBackward();
-            delay(1000);
-
-            smoothLeft();
-            delay(300);
-
-            leftTracer = digitalRead(LEFT_TRACER_PIN);
             rightTracer = digitalRead(RIGHT_TRACER_PIN);
         }
         stopDCMotor();
