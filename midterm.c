@@ -24,6 +24,7 @@ void initUltrasonic();
 int getDistance();
 
 void initIR();
+void initLineTacer();
 
 void initDCMotor();
 void goForward();
