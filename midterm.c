@@ -66,13 +66,9 @@ int main(void)
 
         while (leftTracer == 1 && rightTracer == 1)
         {
-            dist = getDistance();
-            printf("\ndist: %d\n", dist);
-            printf("\nnumOfBoxes: %d\n", numOfBoxes);
-
-            if (dist <= 20 && dist != 0)
+            RValue = digitalRead(RIGHT_IR_PIN);
+            if (RValue == 0)
             {
-                printf("numOfBoxes: %d\n", numOfBoxes);
                 switch (numOfBoxes)
                 {
                 case 2:
@@ -137,9 +133,9 @@ int main(void)
                     break;
 
                 default:
+                    printf("Defaoult\n");
                     numOfBoxes = 1;
                     isStopped = 1;
-                    printf("If stopped\n");
                     stopDCMotor();
                     delay(1000);
                     break;
@@ -162,8 +158,6 @@ int main(void)
         delay(100);
 
         leftTracer = digitalRead(LEFT_TRACER_PIN);
-        printf("leftTracer: %d\n", leftTracer);
-
         while (leftTracer == 0)
         {
             smoothRight();
@@ -178,8 +172,6 @@ int main(void)
         delay(100);
 
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
-        printf("rightTracer: %d\n", rightTracer);
-
         while (rightTracer == 0)
         {
             smoothLeft();
@@ -194,8 +186,6 @@ int main(void)
 
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
-
-        printf("\nLoop finshed\n");
     }
 
     return 0;
