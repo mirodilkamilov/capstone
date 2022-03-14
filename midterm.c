@@ -33,7 +33,6 @@ void goBackward();
 void smoothLeft();
 void smoothRight();
 void stopDCMotor();
-void avoidObstacleFromRight();
 
 int dist;
 int LValue, RValue;
@@ -43,7 +42,7 @@ int main(void)
 {
     if (wiringPiSetup() == -1)
         return 0;
-
+        
     initIR();
 
     initUltrasonic();
@@ -184,40 +183,6 @@ int main(void)
     }
 
     return 0;
-}
-
-/**
- * Avoid obstacle from right:
- * 1. Turns left (until it is paralel to obstacle)
- * 2. Goes forward (until passes by obstacle)
- */
-void avoidObstacleFromRight()
-{
-    int LValue, RValue;
-
-    LValue = digitalRead(LEFT_IR_PIN);
-    RValue = digitalRead(RIGHT_IR_PIN);
-
-    // Turn right until IR sensor detect the obstacle from Left
-    while (LValue == 1)
-    {
-        smoothRight();
-        LValue = digitalRead(LEFT_IR_PIN);
-    }
-
-    stopDCMotor();
-    delay(500);
-    LValue = digitalRead(LEFT_IR_PIN);
-
-    // Go forward until IR sensor stops detecting the obstacle from Left
-    while (LValue == 0)
-    {
-        goForward();
-        LValue = digitalRead(LEFT_IR_PIN);
-    }
-
-    stopDCMotor();
-    delay(500);
 }
 
 void initUltrasonic()
