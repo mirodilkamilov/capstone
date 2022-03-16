@@ -231,6 +231,7 @@ void stopDCMotor()
     softPwmWrite(IN2_PIN, MIN_SPEED);
     softPwmWrite(IN3_PIN, MIN_SPEED);
     softPwmWrite(IN4_PIN, MIN_SPEED);
+    // printf("Stop\n");
 }
 
 void goForward()

@@ -20,25 +20,29 @@
 #define RIGHT_IR_PIN 27
 #define LEFT_TRACER_PIN 10
 #define RIGHT_TRACER_PIN 11
+
 void initUltrasonic();
 int getDistance();
 
 void initIR();
+void initLineTacer();
 
 void initDCMotor();
 void goForward();
+void goBackward();
 void smoothLeft();
 void smoothRight();
 void stopDCMotor();
-void avoidObstacleFromRight();
 
 int dist;
+int LValue, RValue;
+const int MIN_DELAY = 100;
 
 int main(void)
 {
     if (wiringPiSetup() == -1)
         return 0;
-
+        
     initIR();
 
     initUltrasonic();
@@ -48,8 +52,8 @@ int main(void)
     int leftTracer;
     int rightTracer;
 
-    int numOfBoxes = 1;
     int isStopped = 0;
+    int numOfBoxes = 0;
     int isFinished = 0;
 
     while (isFinished == 0)
@@ -58,110 +62,127 @@ int main(void)
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
 
-        // int isNoLine = leftTracer == 1 && rightTracer == 1;
-
         while (leftTracer == 1 && rightTracer == 1)
         {
-            leftTracer = digitalRead(LEFT_TRACER_PIN);
-            rightTracer = digitalRead(RIGHT_TRACER_PIN);
-
-            dist = getDistance();
-            if (dist <= 20)
+            RValue = digitalRead(RIGHT_IR_PIN);
+            if (RValue == 0)
             {
                 switch (numOfBoxes)
                 {
                 case 2:
-                    avoidObstacleFromRight();
+                    stopDCMotor();
+                    delay(MIN_DELAY);
+
+                    LValue = digitalRead(LEFT_IR_PIN);
+
+                    // Turn right until IR sensor detect the obstacle from Left
+                    while (LValue == 1)
+                    {
+                        smoothRight();
+                        LValue = digitalRead(LEFT_IR_PIN);
+                    }
+                    stopDCMotor();
+                    delay(MIN_DELAY);
+
+                    smoothLeft();
+                    delay(400);
+
+                    stopDCMotor();
+                    delay(MIN_DELAY);
+
+                    goBackward();
+                    delay(300);
+
+                    stopDCMotor();
+                    delay(MIN_DELAY);
+
+                    rightTracer = digitalRead(RIGHT_TRACER_PIN);
+                    while (rightTracer == 1)
+                    {
+                        goForward();
+                        rightTracer = digitalRead(RIGHT_TRACER_PIN);
+                    }
+                    stopDCMotor();
+                    delay(MIN_DELAY);
+
+                    while (rightTracer == 0)
+                    {
+                        smoothLeft();
+                        rightTracer = digitalRead(RIGHT_TRACER_PIN);
+                    }
+                    stopDCMotor();
+                    delay(MIN_DELAY);
+
+                    goForward();
+                    delay(300);
+
+                    smoothLeft();
+                    delay(360);
+
+                    numOfBoxes = 3;
+                    printf("In case 2\n");
+                    break;
+
+                case 3:
+                    printf("In case 3\n");
+                    stopDCMotor();
+                    delay(1000);
+                    isFinished = 1;
                     break;
 
                 default:
-                    stopDCMotor();
-                    printf("Stopped\n");
+                    printf("Default\n");
+                    numOfBoxes = 1;
                     isStopped = 1;
+                    stopDCMotor();
+                    delay(1000);
                     break;
                 }
             }
             else
             {
                 goForward();
-                printf("Forward\n");
-                if (isStopped == 1)
-                {
-                    numOfBoxes++;
-                }
+            }
+
+            leftTracer = digitalRead(LEFT_TRACER_PIN);
+            rightTracer = digitalRead(RIGHT_TRACER_PIN);
+            if (isFinished == 1)
+            {
+                leftTracer = NULL;
+                rightTracer = NULL;
             }
         }
         stopDCMotor();
-        delay(100);
+        delay(MIN_DELAY);
 
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         while (leftTracer == 0)
         {
             smoothRight();
-            printf("Right\n");
+
+            if (isStopped == 1 && numOfBoxes == 1)
+            {
+                numOfBoxes = 2;
+            }
             leftTracer = digitalRead(LEFT_TRACER_PIN);
         }
         stopDCMotor();
-        delay(100);
+        delay(MIN_DELAY);
 
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
         while (rightTracer == 0)
         {
             smoothLeft();
-            printf("Left\n");
             rightTracer = digitalRead(RIGHT_TRACER_PIN);
         }
         stopDCMotor();
-        delay(100);
+        delay(MIN_DELAY);
 
         leftTracer = digitalRead(LEFT_TRACER_PIN);
         rightTracer = digitalRead(RIGHT_TRACER_PIN);
-
-        int isBothLine = leftTracer == 0 && rightTracer == 0;
-
-        // if (isBothLine)
-        // {
-        //     stopDCMotor();
-        //     delay(100);
-        //     isFinished = 1;
-        // }
     }
 
     return 0;
-}
-
-/**
- * Avoid obstacle from right:
- * 1. Turns left (until it is paralel to obstacle)
- * 2. Goes forward (until passes by obstacle)
- */
-void avoidObstacleFromRight()
-{
-    int LValue, RValue;
-
-    LValue = digitalRead(LEFT_IR_PIN);
-    RValue = digitalRead(RIGHT_IR_PIN);
-
-    // Turn right until IR sensor detect the obstacle from Left
-    while (LValue == 1)
-    {
-        smoothRight();
-        LValue = digitalRead(LEFT_IR_PIN);
-    }
-
-    stopDCMotor();
-    delay(500);
-    LValue = digitalRead(LEFT_IR_PIN);
-
-    // Go forward until IR sensor stops detecting the obstacle from Left
-    while (LValue == 0)
-    {
-        goForward();
-        LValue = digitalRead(LEFT_IR_PIN);
-    }
-
-    stopDCMotor();
-    delay(500);
 }
 
 void initUltrasonic()
@@ -169,27 +190,39 @@ void initUltrasonic()
     pinMode(TRIG_PIN, OUTPUT);
     pinMode(ECHO_PIN, INPUT);
 }
+
 void initLineTacer()
 {
     pinMode(LEFT_TRACER_PIN, INPUT);
     pinMode(RIGHT_TRACER_PIN, INPUT);
 }
+
 int getDistance()
 {
+    int loop_start = 0;
     int start_time = 0, end_time = 0;
     float distance = 0;
 
     digitalWrite(TRIG_PIN, LOW);
+
+    delayMicroseconds(2);
+    // delay(10);
+
     digitalWrite(TRIG_PIN, HIGH);
     delayMicroseconds(10);
     digitalWrite(TRIG_PIN, LOW);
 
+    loop_start = micros();
     while (digitalRead(ECHO_PIN) == 0)
-        ;
+    {
+        if (micros() - loop_start >= 1000)
+            break;
+    }
     start_time = micros();
 
     while (digitalRead(ECHO_PIN) == 1)
         ;
+
     end_time = micros();
 
     distance = (end_time - start_time) / 29. / 2.;
@@ -238,13 +271,20 @@ void stopDCMotor()
     softPwmWrite(IN2_PIN, MIN_SPEED);
     softPwmWrite(IN3_PIN, MIN_SPEED);
     softPwmWrite(IN4_PIN, MIN_SPEED);
-    // printf("Stop\n");
 }
 
 void goForward()
 {
-    softPwmWrite(IN1_PIN, 55);
+    softPwmWrite(IN1_PIN, 45);
     softPwmWrite(IN2_PIN, MIN_SPEED);
-    softPwmWrite(IN3_PIN, 70);
+    softPwmWrite(IN3_PIN, 60);
     softPwmWrite(IN4_PIN, MIN_SPEED);
+}
+
+void goBackward()
+{
+    softPwmWrite(IN1_PIN, MIN_SPEED);
+    softPwmWrite(IN2_PIN, MAX_SPEED);
+    softPwmWrite(IN3_PIN, MIN_SPEED);
+    softPwmWrite(IN4_PIN, MAX_SPEED);
 }
