@@ -128,7 +128,7 @@ int main(void)
 
 /**
  * Avoid obstacle from right:
- * 1. Turns left (until it is paralel to obstacle)
+ * 1. Turns left (until it is parallel to obstacle)
  * 2. Goes forward (until passes by obstacle)
  */
 void avoidObstacleFromRight()
@@ -231,7 +231,6 @@ void stopDCMotor()
     softPwmWrite(IN2_PIN, MIN_SPEED);
     softPwmWrite(IN3_PIN, MIN_SPEED);
     softPwmWrite(IN4_PIN, MIN_SPEED);
-    // printf("Stop\n");
 }
 
 void goForward()

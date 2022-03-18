@@ -25,7 +25,7 @@ void initUltrasonic();
 int getDistance();
 
 void initIR();
-void initLineTacer();
+void initLineTracer();
 
 void initDCMotor();
 void goForward();
@@ -47,7 +47,7 @@ int main(void)
 
     initUltrasonic();
     initDCMotor();
-    initLineTacer();
+    initLineTracer();
 
     int leftTracer;
     int rightTracer;
@@ -191,7 +191,7 @@ void initUltrasonic()
     pinMode(ECHO_PIN, INPUT);
 }
 
-void initLineTacer()
+void initLineTracer()
 {
     pinMode(LEFT_TRACER_PIN, INPUT);
     pinMode(RIGHT_TRACER_PIN, INPUT);
