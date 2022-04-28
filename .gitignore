@@ -1,7 +1,10 @@
 *
 !.gitignore
 !*.c
+!*.py
 !*/
 !*.pdf
 !*.docx
+!*.png
+!*.jpg
 Test
