@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-# task 1: draw a rectanlge
+# task 1: draw a rectangle
 original = cv2.imread('gray_car.png')
 image = cv2.imread('gray_car.png')
 image = cv2.rectangle(image, (215, 104), (365, 245), (0, 0, 255), 3)
@@ -9,7 +9,7 @@ image = cv2.rectangle(image, (215, 104), (365, 245), (0, 0, 255), 3)
 cv2.imwrite('task1.png', image)
 
 
-# task 2: seperate two cars (using ROI)
+# task 2: separate two cars (using ROI)
 cv2.imwrite('task2_car1.png', original[104:245, 215:365])
 cv2.imwrite('task2_car2.png', original[18:110, 100:212])
 
