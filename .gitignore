@@ -4,6 +4,8 @@
 !*.py
 !*/
 !*.pdf
+!*.md
+!*.gif
 !*.docx
 !*.png
 !*.jpg
