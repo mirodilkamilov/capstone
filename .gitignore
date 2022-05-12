@@ -2,6 +2,7 @@
 !.gitignore
 !*.c
 !*.py
+!*.ipynb
 !*/
 !*.pdf
 !*.md
