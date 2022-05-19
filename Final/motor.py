@@ -1,5 +1,34 @@
+import constants as constant
+
+
+def handle_motor_operations(roi_center, roi_lane_center):
+    roi_center_x = roi_center[0]
+    roi_lane_center_x = roi_lane_center[0]
+    center_difference = roi_center_x - roi_lane_center_x
+
+    direction = 'Stop'
+    direction_keys = constant.DIRECTION_THRESHOLDS.keys()
+
+    for direction_key in direction_keys:
+        if center_difference in constant.DIRECTION_THRESHOLDS.get(direction_key):
+            direction = direction_key
+            break
+
+    # if direction == 'Forward':
+    #     go_forward()
+    # elif direction == 'Right':
+    #     turn_right()
+    # elif direction == 'Left':
+    #     turn_left()
+    # else:
+    #     stop_motor()
+
+    return direction
+
+
+# TODO: Uncomment to use motors
+"""
 from gpiozero import Motor
-from time import sleep
 
 # pins for backward are empty
 motor1 = Motor(forward=18, backward=17)
@@ -18,15 +47,16 @@ def go_forward():
 def turn_right():
     motor1.forward(0.60)
     motor2.forward(0)
-    motor3.forward(0.45/8)
+    motor3.forward(0.45 / 8)
     motor4.forward(0)
 
 
 def turn_left():
-    motor1.forward(0.45/8)
+    motor1.forward(0.45 / 8)
     motor2.forward(0)
     motor3.forward(0.60)
     motor4.forward(0)
+
 
 # same pins for forward and backward
 def go_backward():
@@ -41,3 +71,5 @@ def stop_motor():
     motor2.forward(0)
     motor3.forward(0)
     motor4.forward(0)
+
+"""
