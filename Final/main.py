@@ -48,7 +48,6 @@ while True:
     ro.draw_direction_text(frame, direction)
 
     cv.imshow('original', frame)
-    cv.imshow('roi', roi)
 
     # show one frame at a time (press space to show next frame)
     key = cv.waitKey(0)
