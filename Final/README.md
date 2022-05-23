@@ -1,5 +1,5 @@
 # Final exam
 
-Basic motor control with ultrasonic sensor in Python
+Lane dtection demo with test video
 
-![Basic motor control with ultrasonic sensor in Python](basic_motor_control.gif)
+![Lane dtection demo](/Final/images/lane-detection-demo.gif)
