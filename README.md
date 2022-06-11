@@ -11,7 +11,7 @@
 - **Final:** Complete the map using camera (lane detection with OpenCV)
 
 <table>
-   <tr>
+   <tr align="center">
       <td>Smart car</td>
       <td>Final demo</td>
    </tr>
