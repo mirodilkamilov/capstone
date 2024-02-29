@@ -24,5 +24,5 @@ The project's culmination involved developing an algorithm to enable self-drivin
 
 Throughout the project, comprehensive reports were prepared, demonstrating independent research, problem-solving, and application of scientific methods. The project showcased the student's technical expertise, ability to work independently and in a team, and proficiency in conducting research and solving real-world problems.
 
-_Continue reading the report [here](https://docs.google.com/document/d/1nCIVKciUbrRU1dS-SqR-eNBm7dy9kG9li6lU9Lv0RCE/edit?usp=sharing)._
+
 
